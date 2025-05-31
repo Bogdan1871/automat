@@ -3,7 +3,6 @@ import multer from 'multer';
 import path from 'path';
 import { processInvoiceFile } from '../services/invoice.service';
 
-// Configure multer for file uploads
 const upload = multer({
   dest: path.join(__dirname, '../../uploads'),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max file size
@@ -23,40 +22,6 @@ const upload = multer({
 
 const router = Router();
 
-/**
- * POST /api/invoice/upload
- * Upload an XLS(X) file and invoicingMonth=YYYY-MM
- */
-// router.post(
-//   '/upload',
-//   upload.single('file'),
-//   async (req: Request, res: Response) => {
-//     console.log('BODY RECEIVED:', req.body);
-// console.log('RAW FIELDS:', Object.keys(req.body));
-//     try {
-//       // Robust invoicingMonth extraction (case-insensitive, trims value)
-//       const invoicingMonth = getInvoicingMonth(req.body);
-//       if (!invoicingMonth || !/^\d{4}-\d{2}$/.test(invoicingMonth)) {
-//         res.status(400).json({ error: 'Missing or invalid invoicingMonth (YYYY-MM)' });
-//         return;
-//       }
-
-//       if (!req.file) {
-//         res.status(400).json({ error: 'No file uploaded' });
-//         return;
-//       }
-
-//       const result = await processInvoiceFile(req.file.path, invoicingMonth);
-//       res.json(result);
-//     } catch (err: any) {
-//       console.error('[invoice.controller] Error:', err);
-//       res
-//         .status(500)
-//         .json({ error: 'Failed to process invoice file', details: err?.message });
-//     }
-//   }
-// );
-
 router.post(
   '/upload',
   upload.single('file'),
@@ -67,7 +32,6 @@ router.post(
         return;
       }
 
-      // Only the file path is needed; no invoicingMonth from body
       const result = await processInvoiceFile(req.file.path);
 
       res.json(result);

@@ -1,7 +1,6 @@
 import { InvoiceRecord, CurrencyRates } from '../types';
 import { convertCurrency } from './currencyConverter';
 
-// List of normalized mandatory fields
 const mandatoryFields = [
   'customer',
   'cust no',
@@ -14,16 +13,10 @@ const mandatoryFields = [
   'status'
 ];
 
-// Helper: normalize keys for comparison (case, spaces)
 function normalizeKey(key: string): string {
   return key.trim().replace(/\s+/g, ' ').toLowerCase();
 }
 
-/**
- * Validates and enriches all invoice records.
- * Populates .validationErrors (array of strings) for each record.
- * If valid, calculates .invoiceTotal (converted into invoice currency).
- */
 export function validateInvoiceRecords(
   records: any[],
   currencyRates: CurrencyRates
@@ -43,7 +36,6 @@ export function validateInvoiceRecords(
       }
     }
 
-    // 2. Validate numbers and types
     const qKey = Object.keys(record).find((k) => normalizeKey(k) === 'quantity');
     const priceKey = Object.keys(record).find((k) => normalizeKey(k) === 'price per item');
     const totalPriceKey = Object.keys(record).find((k) => normalizeKey(k) === 'total price');
@@ -78,7 +70,6 @@ export function validateInvoiceRecords(
       errors.push(`Unknown invoice currency: ${invoiceCurrency}`);
     }
 
-    // 4. Check price calculation (optionally)
     if (
       typeof quantity === 'number' &&
       typeof pricePerItem === 'number' &&
@@ -93,12 +84,10 @@ export function validateInvoiceRecords(
       }
     }
 
-    // 5. Only process relevant records: a) status "ready" or b) invoice number filled
     if (!(status === 'ready' || (invoiceNumber && String(invoiceNumber).trim() !== ''))) {
       errors.push('Row is not relevant (status is not "ready" and invoice number missing)');
     }
 
-    // 6. Calculate invoiceTotal if everything else passes
     let invoiceTotal: number | undefined = undefined;
     if (
       totalPriceKey &&
@@ -120,7 +109,6 @@ export function validateInvoiceRecords(
       }
     }
 
-    // Finalize validationErrors and invoiceTotal
     record.validationErrors = errors;
     if (typeof invoiceTotal === 'number' && errors.length === 0) {
       record.invoiceTotal = invoiceTotal;

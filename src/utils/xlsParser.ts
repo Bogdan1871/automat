@@ -48,7 +48,6 @@ export async function parseInvoiceXls(filePath: string): Promise<ParsedInvoiceDa
     raw: false
   });
 
-  // 1. Invoicing month: from first non-empty cell in first few rows
   let invoicingMonth = '';
   for (let i = 0; i < Math.min(5, rows.length); i++) {
     for (const cell of rows[i]) {
@@ -64,10 +63,8 @@ export async function parseInvoiceXls(filePath: string): Promise<ParsedInvoiceDa
     throw new Error('Could not extract invoicingMonth (YYYY-MM) from the first cells of the file');
   }
 
-  // 2. Currency rates: from multiple rate rows
   const currencyRates = parseCurrencyRates(rows);
 
-  // 3. Find header row dynamically (must include "Customer", "Cust No", "Project Type")
   let headerRowRaw: string[] | undefined;
   let headerRowIdx = -1;
   let startIdx = -1;
@@ -89,7 +86,6 @@ export async function parseInvoiceXls(filePath: string): Promise<ParsedInvoiceDa
   const endIdx = headerRowRaw.length - 1;
   const headerRow = headerRowRaw.slice(startIdx, endIdx + 1);
 
-  // 4. Data rows: start after header row
   const dataRows = rows.slice(headerRowIdx + 1);
 
   const records: InvoiceRecord[] = [];
@@ -104,7 +100,6 @@ export async function parseInvoiceXls(filePath: string): Promise<ParsedInvoiceDa
       break;
     }
 
-    // Build record, map aliases for validation
     const record: Record<string, any> = {};
     const rowSlice = rowArr.slice(startIdx, startIdx + headerRow.length);
     for (let j = 0; j < headerRow.length; j++) {
